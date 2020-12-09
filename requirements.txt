@@ -1,0 +1,12 @@
+autopep8==1.4.4
+future==0.17.1
+iso8601==0.1.12
+keyboard==0.13.3
+pkg-resources==0.0.0
+pycodestyle==2.5.0
+pygame==1.9.6
+pyserial==3.4
+python-xlib==0.25
+PyUserInput==0.1.9
+PyYAML==5.1
+six==1.12.0
