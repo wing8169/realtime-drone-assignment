@@ -177,7 +177,8 @@ class Game:
             self.powerup_time = pg.time.get_ticks()
 
         # check if the player wins
-        if pg.time.get_ticks() - self.game_timer > self.game_end_time and (self.player1.alive() or self.player2.alive()):
+        if pg.time.get_ticks() - self.game_timer > self.game_end_time and (
+                self.player1.alive() or self.player2.alive()):
             show_win_screen(self)
 
         # check if the boss is out
@@ -343,7 +344,7 @@ class Game:
                                self.player2.last_swish, 10)
         self.all_sprites.draw(self.screen)
         self.draw_text("score : " + str(self.score),
-                       FONTNAME, 24, WHITE, WIDTH * 3/4, 30)
+                       FONTNAME, 24, WHITE, WIDTH * 3 / 4, 30)
         for mobby in self.mobs:
             draw_enemy_health_bar(mobby, mobby.health /
                                   50, mobby.left_bar, mobby.bottom_bar)
@@ -445,7 +446,8 @@ class Game:
         self.player1_stand = pg.transform.scale(self.player1_stand, (70, 70))
         self.player1_stand.set_colorkey(BLACK)
         self.player1_right = pg.image.load(path.join(self.img_dir,
-                                                     "spr_m_traveler_run_anim_1.png").replace("\\", "/")).convert_alpha()
+                                                     "spr_m_traveler_run_anim_1.png").replace("\\",
+                                                                                              "/")).convert_alpha()
         self.player1_right = pg.transform.scale(self.player1_right, (70, 70))
         self.player1_right.set_colorkey(BLACK)
         self.player1_left = pg.transform.flip(self.player1_right, True, False)
@@ -491,9 +493,11 @@ class Game:
         self.powerup_img["double speed"] = pg.image.load(path.join(self.img_dir,
                                                                    "bolt_gold.png").replace("\\", "/")).convert_alpha()
         self.powerup_img["double attack speed"] = pg.transform.rotate(pg.image.load(path.join(self.img_dir,
-                                                                                              "Weapons_0010_Capa-8 (3).png").replace("\\", "/")).convert_alpha(), 180)
+                                                                                              "Weapons_0010_Capa-8 (3).png").replace(
+            "\\", "/")).convert_alpha(), 180)
         self.powerup_img["shooting power"] = pg.image.load(path.join(self.img_dir,
-                                                                     "powerupGreen_bolt.png").replace("\\", "/")).convert_alpha()
+                                                                     "powerupGreen_bolt.png").replace("\\",
+                                                                                                      "/")).convert_alpha()
 
         self.main_icon = pg.image.load(path.join(
             self.img_dir, "opp_promo_traveler.png").replace("\\", "/")).convert_alpha()
@@ -564,14 +568,14 @@ class Game:
         font = pg.font.Font(font_type, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
-        text_rect.midtop = (x, y)
+        text_rect.midtop = (int(x), int(y))
         self.screen.blit(text_surface, text_rect)
         return text_rect
 
     def draw_health_bar(self, health_pct, x=20, y=30):
         current_health_length = health_pct * BAR_LENGTH
         frame_bar = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
-        health_bar = pg.Rect(x, y, current_health_length, BAR_HEIGHT)
+        health_bar = pg.Rect(int(x), int(y), current_health_length, BAR_HEIGHT)
         pg.draw.rect(self.screen, GREEN, health_bar)
         pg.draw.rect(self.screen, WHITE, frame_bar, 2)
 
