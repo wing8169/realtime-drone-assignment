@@ -42,8 +42,6 @@ from screens import *
 import pygame as pg
 
 from threading import Thread
-import serial
-from pykeyboard import PyKeyboard
 import time
 
 
