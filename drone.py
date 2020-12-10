@@ -1,6 +1,7 @@
 from setting import *
 import pygame as pg
 
+from tello import Tello
 from utils import calculate_command, calculate_angle
 
 
@@ -32,14 +33,20 @@ class Drone(pg.sprite.Sprite):
         self.current_command = ""
         self.current_angle = 0
         self.route = DRONE_ROUTES[0]
+        self.tello = Tello()
+        self.tello.send("command")
 
     def update(self):
         # toggle flying
         keys = pg.key.get_pressed()
         if keys[self.fly]:
-            self.flying = True
+            if not self.flying:
+                self.flying = True
+                self.tello.send("takeoff")
         elif keys[self.land]:
-            self.flying = False
+            if self.flying:
+                self.flying = False
+                self.tello.send("land")
         # do not move if not flying
         if not self.flying:
             return
@@ -137,3 +144,4 @@ class Drone(pg.sprite.Sprite):
                                                                          self.rect.y,
                                                                          self.route[0],
                                                                          self.route[1])
+            self.tello.send(self.current_command)

@@ -108,6 +108,7 @@ class Game:
                             self.drone.rect.y,
                             self.drone.route[0],
                             self.drone.route[1])
+                        self.drone.tello.send(self.drone.current_command)
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
             pg.quit()
