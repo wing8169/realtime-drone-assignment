@@ -4,6 +4,9 @@
 from drone import *
 from setting import *
 import pygame as pg
+import sys
+
+from utils import calculate_command
 
 
 class Game:
@@ -51,6 +54,7 @@ class Game:
         self.draw_text("Drone Status", None, 30, BLACK, 580, 200)
         self.draw_text("Current Mode: " + self.drone.mode, None, 24, BLACK, 580, 230)
         self.draw_text("Current Position: " + ("Flying" if self.drone.flying else "Landed"), None, 24, BLACK, 580, 260)
+        self.draw_text("Current Command: " + self.drone.current_command, None, 24, BLACK, 50, 290)
         self.all_sprites.draw(self.screen)
         pg.display.flip()
 
@@ -94,8 +98,16 @@ class Game:
                 sys.exit()
             # toggle manual / auto for drone
             elif event.type == pg.KEYUP:
-                if event.key == DRONE_TOGGLE:
+                if event.key == DRONE_TOGGLE and self.drone.flying:
                     self.drone.mode = "Manual" if self.drone.mode == "Automatic" else "Automatic"
+                    if self.drone.mode == "Automatic":
+                        # if just toggled automatic mode, trigger command printing
+                        self.drone.current_command, self.drone.current_angle = calculate_command(
+                            self.drone.current_angle,
+                            self.drone.rect.x,
+                            self.drone.rect.y,
+                            self.drone.route[0],
+                            self.drone.route[1])
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
             pg.quit()

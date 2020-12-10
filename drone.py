@@ -1,6 +1,8 @@
 from setting import *
 import pygame as pg
 
+from utils import calculate_command, calculate_angle
+
 
 class Drone(pg.sprite.Sprite):
     def __init__(self, game, x, y, left, right, up, down, fly, land, stand_img, right_img, left_img,
@@ -17,7 +19,7 @@ class Drone(pg.sprite.Sprite):
         self.rect.center = (x, y)
         self.speedx = 0
         self.speedy = 0
-        self.mode = "Automatic"
+        self.mode = "Manual"
         self.left = left
         self.right = right
         self.up = up
@@ -27,6 +29,9 @@ class Drone(pg.sprite.Sprite):
         self.speedup = speedup
         self.current_checkpoint = 0
         self.flying = False
+        self.current_command = ""
+        self.current_angle = 0
+        self.route = DRONE_ROUTES[0]
 
     def update(self):
         # toggle flying
@@ -39,7 +44,6 @@ class Drone(pg.sprite.Sprite):
         if not self.flying:
             return
         # toggle mode
-
         if self.mode == "Automatic":
             self.update_automatic()
         else:
@@ -62,15 +66,11 @@ class Drone(pg.sprite.Sprite):
             self.speedy -= DRONE_SPEED * self.speedup
         if keys[self.down]:
             self.speedy += DRONE_SPEED * self.speedup
-        if keys[self.fly]:
-            # TODO: Implement fly
-            pass
-        if keys[self.land]:
-            # TODO: Implement land
-            pass
         if self.speedx != 0 and self.speedy != 0:
             self.speedx *= 0.7071
             self.speedy *= 0.7071
+        old_x = self.rect.x
+        old_y = self.rect.y
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.left < 0:
@@ -81,6 +81,8 @@ class Drone(pg.sprite.Sprite):
             self.rect.top = 0
         if self.rect.bottom > HEIGHT:
             self.rect.bottom = HEIGHT
+        # update angle
+        self.current_angle = calculate_angle(old_x, old_y, self.rect.x, self.rect.y)
 
     def update_automatic(self):
         self.image = self.stand_img
@@ -89,21 +91,21 @@ class Drone(pg.sprite.Sprite):
         self.speedx = 0
         self.speedy = 0
         # get current checkpoint route
-        route = DRONE_ROUTES[self.current_checkpoint]
+        self.route = DRONE_ROUTES[self.current_checkpoint]
         # check distance to x
-        if route[0] < self.rect.x:
+        if self.route[0] < self.rect.x:
             # if at the left side, move left
             self.speedx -= DRONE_SPEED * self.speedup
             self.image = self.left_img
-        elif route[0] > self.rect.x:
+        elif self.route[0] > self.rect.x:
             # if at the right side, move right
             self.speedx += DRONE_SPEED * self.speedup
             self.image = self.right_img
         # check distance to y
-        if route[1] < self.rect.y:
+        if self.route[1] < self.rect.y:
             # if at the top side, move up
             self.speedy -= DRONE_SPEED * self.speedup
-        elif route[1] > self.rect.y:
+        elif self.route[1] > self.rect.y:
             # if at the bottom side, move down
             self.speedy += DRONE_SPEED * self.speedup
         # lower speed a bit for diagonal movement
@@ -114,17 +116,24 @@ class Drone(pg.sprite.Sprite):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         # position correction
-        if self.speedx < 0 and self.rect.x < route[0]:
-            self.rect.x = route[0]
-        if self.speedx > 0 and self.rect.x > route[0]:
-            self.rect.x = route[0]
-        if self.speedy < 0 and self.rect.y < route[1]:
-            self.rect.y = route[1]
-        if self.speedy > 0 and self.rect.y > route[1]:
-            self.rect.y = route[1]
-        # update checkpoint if reached
-        if self.rect.x == route[0] and self.rect.y == route[1]:
+        if self.speedx < 0 and self.rect.x < self.route[0]:
+            self.rect.x = self.route[0]
+        if self.speedx > 0 and self.rect.x > self.route[0]:
+            self.rect.x = self.route[0]
+        if self.speedy < 0 and self.rect.y < self.route[1]:
+            self.rect.y = self.route[1]
+        if self.speedy > 0 and self.rect.y > self.route[1]:
+            self.rect.y = self.route[1]
+        # update checkpoint and command if reached
+        if self.rect.x == self.route[0] and self.rect.y == self.route[1]:
             self.current_checkpoint += 1
             # round robin
             if self.current_checkpoint >= len(DRONE_ROUTES):
                 self.current_checkpoint = 0
+            self.route = DRONE_ROUTES[self.current_checkpoint]
+            # update command
+            self.current_command, self.current_angle = calculate_command(self.current_angle,
+                                                                         self.rect.x,
+                                                                         self.rect.y,
+                                                                         self.route[0],
+                                                                         self.route[1])
