@@ -17,7 +17,7 @@ class Drone(pg.sprite.Sprite):
         self.rect.center = (x, y)
         self.speedx = 0
         self.speedy = 0
-        self.mode = "automatic"
+        self.mode = "Automatic"
         self.left = left
         self.right = right
         self.up = up
@@ -40,7 +40,7 @@ class Drone(pg.sprite.Sprite):
             return
         # toggle mode
 
-        if self.mode == "automatic":
+        if self.mode == "Automatic":
             self.update_automatic()
         else:
             self.update_manual()

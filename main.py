@@ -42,6 +42,15 @@ class Game:
 
     def draw(self):
         self.draw_background()
+        # draw instruction text
+        self.draw_text("Controls", None, 30, BLACK, 580, 50)
+        self.draw_text("Fly: Q", None, 24, BLACK, 580, 80)
+        self.draw_text("Land: E", None, 24, BLACK, 580, 110)
+        self.draw_text("Manual Control: WASD", None, 24, BLACK, 580, 140)
+        self.draw_text("Toggle Manual/Auto: R", None, 24, BLACK, 580, 170)
+        self.draw_text("Drone Status", None, 30, BLACK, 580, 200)
+        self.draw_text("Current Mode: " + self.drone.mode, None, 24, BLACK, 580, 230)
+        self.draw_text("Current Position: " + ("Flying" if self.drone.flying else "Landed"), None, 24, BLACK, 580, 260)
         self.all_sprites.draw(self.screen)
         pg.display.flip()
 
@@ -86,7 +95,7 @@ class Game:
             # toggle manual / auto for drone
             elif event.type == pg.KEYUP:
                 if event.key == DRONE_TOGGLE:
-                    self.drone.mode = "manual" if self.drone.mode == "automatic" else "automatic"
+                    self.drone.mode = "Manual" if self.drone.mode == "Automatic" else "Automatic"
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
             pg.quit()
@@ -96,7 +105,7 @@ class Game:
         font = pg.font.Font(font_type, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
-        text_rect.midtop = (int(x), int(y))
+        text_rect.bottomleft = (int(x), int(y))
         self.screen.blit(text_surface, text_rect)
         return text_rect
 
