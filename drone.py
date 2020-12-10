@@ -1,5 +1,4 @@
-from enemy import *
-from new_setting import *
+from setting import *
 import pygame as pg
 import random
 from os import path
@@ -43,15 +42,15 @@ class Drone(pg.sprite.Sprite):
         self.speedy = 0
         keys = pg.key.get_pressed()
         if keys[self.left]:
-            self.speedx -= PLAYERSPEED * self.speedup
+            self.speedx -= DRONE_SPEED * self.speedup
             self.image = self.left_img
         if keys[self.right]:
-            self.speedx += PLAYERSPEED * self.speedup
+            self.speedx += DRONE_SPEED * self.speedup
             self.image = self.right_img
         if keys[self.up]:
-            self.speedy -= PLAYERSPEED * self.speedup
+            self.speedy -= DRONE_SPEED * self.speedup
         if keys[self.down]:
-            self.speedy += PLAYERSPEED * self.speedup
+            self.speedy += DRONE_SPEED * self.speedup
         if keys[self.fly]:
             # TODO: Implement fly
             pass
@@ -80,15 +79,15 @@ class Drone(pg.sprite.Sprite):
         self.speedy = 0
         keys = pg.key.get_pressed()
         if keys[self.left]:
-            self.speedx -= PLAYERSPEED * self.speedup
+            self.speedx -= DRONE_SPEED * self.speedup
             self.image = self.left_img
         if keys[self.right]:
-            self.speedx += PLAYERSPEED * self.speedup
+            self.speedx += DRONE_SPEED * self.speedup
             self.image = self.right_img
         if keys[self.up]:
-            self.speedy -= PLAYERSPEED * self.speedup
+            self.speedy -= DRONE_SPEED * self.speedup
         if keys[self.down]:
-            self.speedy += PLAYERSPEED * self.speedup
+            self.speedy += DRONE_SPEED * self.speedup
         if keys[self.fly]:
             # TODO: Implement fly
             pass
