@@ -8,16 +8,7 @@ TITLE = "DRONE SIMULATOR T2G4"
 GAME_TITLE = "DRONE SIMULATOR T2G4"
 FPS = 60
 
-if getattr(sys, 'frozen', False):
-    # frozen
-    DIR = path.dirname(sys.executable).replace("\\", "/")
-else:
-    # unfrozen
-    DIR = path.dirname(path.realpath(__file__)).replace("\\", "/")
-
-FONTNAME_TITLE = path.join(
-    DIR, "font/BungeeInline-Regular.ttf").replace("\\", "/")
-FONTNAME = path.join(DIR, "font/BungeeInline-Regular.ttf").replace("\\", "/")
+DIR = path.dirname(path.realpath(__file__)).replace("\\", "/")
 IMG_DIR = path.join(DIR, "img")
 
 # define color
@@ -33,8 +24,8 @@ DARK_RED = (100, 0, 0)
 YELLOW = (212, 202, 62)
 
 # player attributes
-DRONE_INIT_X = WIDTH / 2
-DRONE_INIT_Y = HEIGHT - 50
+DRONE_INIT_X = 390
+DRONE_INIT_Y = 170
 DRONE_SPEED = 7
 
 # player control setting
@@ -42,5 +33,9 @@ DRONE_UP = pg.K_w
 DRONE_DOWN = pg.K_s
 DRONE_LEFT = pg.K_a
 DRONE_RIGHT = pg.K_d
-DRONE_FLY = pg.K_e
-DRONE_LAND = pg.K_q
+DRONE_FLY = pg.K_q
+DRONE_LAND = pg.K_e
+DRONE_TOGGLE = pg.K_r
+
+# predefined route setting
+DRONE_ROUTES = [[300, 95], [300, 490], [620, 490], [620, 300], [480, 300], [480, 95]]

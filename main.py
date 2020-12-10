@@ -83,6 +83,10 @@ class Game:
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+            # toggle manual / auto for drone
+            elif event.type == pg.KEYUP:
+                if event.key == DRONE_TOGGLE:
+                    self.drone.mode = "manual" if self.drone.mode == "automatic" else "automatic"
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
             pg.quit()
