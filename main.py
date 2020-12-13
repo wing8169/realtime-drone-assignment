@@ -2,6 +2,7 @@
 # Transparent drone image: https://www.pngkey.com/download/u2w7u2q8y3t4a9r5_online-taxifahrer-dr-drone-animation/
 
 from drone import *
+from obstacle import Obstacle
 from setting import *
 import pygame as pg
 import sys
@@ -35,6 +36,11 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+        # check if the drone is near the obstacles
+        for obstacle in self.obstacles:
+            pos = pg.math.Vector2(self.drone.rect.x, self.drone.rect.y)
+            if pos.distance_to(pg.math.Vector2(obstacle.rect.x, obstacle.rect.y)) <= 90:
+                self.drone.mode = "Manual"
 
     def quit(self):
         pg.quit()
@@ -56,6 +62,7 @@ class Game:
         # draw instruction text
         self.draw_text("Controls", None, 30, BLACK, 580, 50)
         self.draw_text("Fly: Q", None, 24, BLACK, 580, 80)
+        self.draw_text("Building: B", None, 24, BLACK, 650, 80)
         self.draw_text("Land: E", None, 24, BLACK, 580, 110)
         self.draw_text("Manual Control: WASD", None, 24, BLACK, 580, 140)
         self.draw_text("Toggle Manual/Auto: R", None, 24, BLACK, 580, 170)
@@ -76,6 +83,11 @@ class Game:
                            self.drone_right, self.drone_left)
         self.all_sprites.add(self.drone)
         self.drones.add(self.drone)
+        # initialize obstacle
+        self.obstacles = pg.sprite.Group()
+        self.obstacle = Obstacle(self, 300, 300, self.building_img)
+        self.all_sprites.add(self.obstacle)
+        self.obstacles.add(self.obstacle)
         self.run()
 
     def load_data(self):
@@ -97,6 +109,10 @@ class Game:
                                                    "drone_right.png").replace("\\", "/")).convert()
         self.drone_right = pg.transform.scale(self.drone_right, (100, 50))
         self.drone_right.set_colorkey(BLACK)
+        self.building_img = pg.image.load(path.join(self.img_dir,
+                                                    "building.png").replace("\\", "/")).convert()
+        self.building_img = pg.transform.scale(self.building_img, (100, 100))
+        self.building_img.set_colorkey(BLACK)
 
     def events(self):
         for event in pg.event.get():
@@ -116,6 +132,13 @@ class Game:
                             self.drone.route[0],
                             self.drone.route[1])
                         self.drone.tello.send(self.drone.current_command)
+                if event.key == BUILDING_TOGGLE:
+                    if self.obstacle.alive():
+                        self.obstacle.kill()
+                    else:
+                        self.obstacle = Obstacle(self, 300, 300, self.building_img)
+                        self.all_sprites.add(self.obstacle)
+                        self.obstacles.add(self.obstacle)
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
             pg.quit()

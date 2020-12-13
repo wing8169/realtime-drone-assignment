@@ -35,6 +35,7 @@ DRONE_RIGHT = pg.K_d
 DRONE_FLY = pg.K_q
 DRONE_LAND = pg.K_e
 DRONE_TOGGLE = pg.K_r
+BUILDING_TOGGLE = pg.K_b
 
 # predefined route setting
 DRONE_ROUTES = [[300, 95], [300, 490], [620, 490], [620, 300], [480, 300], [480, 95]]
