@@ -45,6 +45,14 @@ class Game:
 
     def draw(self):
         self.draw_background()
+        # draw drone
+        self.all_sprites.draw(self.screen)
+        # draw mini map
+        rect = pg.Rect(self.drone.rect.left - 50, self.drone.rect.top - 50, 200, 150)
+        sub = self.screen.subsurface(rect)
+        screenshot = pg.Surface((200, 150))
+        screenshot.blit(sub, (0, 0))
+        self.screen.blit(pg.transform.scale(screenshot, (200, 200)), (0, 0))
         # draw instruction text
         self.draw_text("Controls", None, 30, BLACK, 580, 50)
         self.draw_text("Fly: Q", None, 24, BLACK, 580, 80)
@@ -55,7 +63,6 @@ class Game:
         self.draw_text("Current Mode: " + self.drone.mode, None, 24, BLACK, 580, 230)
         self.draw_text("Current Position: " + ("Flying" if self.drone.flying else "Landed"), None, 24, BLACK, 580, 260)
         self.draw_text("Current Command: " + self.drone.current_command, None, 24, BLACK, 50, 290)
-        self.all_sprites.draw(self.screen)
         pg.display.flip()
 
     def new(self):

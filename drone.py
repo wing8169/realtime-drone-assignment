@@ -80,14 +80,14 @@ class Drone(pg.sprite.Sprite):
         old_y = self.rect.y
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        if self.rect.left < 50:
+            self.rect.left = 50
+        if self.rect.right > WIDTH - 50:
+            self.rect.right = WIDTH - 50
+        if self.rect.top < 50:
+            self.rect.top = 50
+        if self.rect.bottom > HEIGHT - 50:
+            self.rect.bottom = HEIGHT - 50
         # update angle
         self.current_angle = calculate_angle(old_x, old_y, self.rect.x, self.rect.y)
 
