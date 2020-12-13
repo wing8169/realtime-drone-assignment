@@ -25,6 +25,7 @@ class Game:
         self.clock = pg.time.Clock()
         self.running = True
         self.load_data()
+        self.alpha = 0  # hit obstacle pop up
 
     def run(self):
         self.playing = True
@@ -40,7 +41,19 @@ class Game:
         for obstacle in self.obstacles:
             pos = pg.math.Vector2(self.drone.rect.x, self.drone.rect.y)
             if pos.distance_to(pg.math.Vector2(obstacle.rect.x, obstacle.rect.y)) <= 90:
-                self.drone.mode = "Manual"
+                if self.drone.mode != "Manual":
+                    self.drone.mode = "Manual"
+                    # pop up
+                    self.alpha = 255
+        if self.alpha > 0:
+            # Reduce alpha each frame, but make sure it doesn't get below 0.
+            self.alpha = max(self.alpha - 4, 0)
+            self.txt_surf = self.orig_surf.copy()  # Don't modify the original text surf.
+            # Fill alpha_surf with this color to set its alpha value.
+            self.alpha_surf.fill((255, 255, 255, self.alpha))
+            # To make the text surface transparent, blit the transparent
+            # alpha_surf onto it with the BLEND_RGBA_MULT flag.
+            self.txt_surf.blit(self.alpha_surf, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
 
     def quit(self):
         pg.quit()
@@ -70,6 +83,7 @@ class Game:
         self.draw_text("Current Mode: " + self.drone.mode, None, 24, BLACK, 580, 230)
         self.draw_text("Current Position: " + ("Flying" if self.drone.flying else "Landed"), None, 24, BLACK, 580, 260)
         self.draw_text("Current Command: " + self.drone.current_command, None, 24, BLACK, 50, 290)
+        self.screen.blit(self.txt_surf, (100, 250))
         pg.display.flip()
 
     def new(self):
@@ -88,6 +102,13 @@ class Game:
         self.obstacle = Obstacle(self, 300, 300, self.building_img)
         self.all_sprites.add(self.obstacle)
         self.obstacles.add(self.obstacle)
+        # initialize pop up
+        self.orig_surf = self.draw_text("Detected Obstacle, Switching to Manual Mode", None, 40, DARK_RED, 350, 250,
+                                        False)
+        self.txt_surf = self.orig_surf.copy()
+        self.alpha_surf = pg.Surface(self.txt_surf.get_size(), pg.SRCALPHA)
+        self.alpha_surf.fill((255, 255, 255, self.alpha))
+        self.txt_surf.blit(self.alpha_surf, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
         self.run()
 
     def load_data(self):
@@ -144,13 +165,14 @@ class Game:
             pg.quit()
             sys.exit()
 
-    def draw_text(self, text, font_type, size, color, x, y):
+    def draw_text(self, text, font_type, size, color, x, y, can_blit=True):
         font = pg.font.Font(font_type, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
         text_rect.bottomleft = (int(x), int(y))
-        self.screen.blit(text_surface, text_rect)
-        return text_rect
+        if can_blit:
+            self.screen.blit(text_surface, text_rect)
+        return text_surface
 
 
 g = Game()
