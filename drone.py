@@ -30,11 +30,12 @@ class Drone(pg.sprite.Sprite):
         self.speedup = speedup
         self.current_checkpoint = 0
         self.flying = False
-        self.current_command = ""
+        self.current_command = "Manual Mode"
         self.current_angle = 0
         self.route = DRONE_ROUTES[0]
         self.tello = Tello()
         self.tello.send("command")
+        self.completed = 0
 
     def update(self):
         # toggle flying
@@ -80,14 +81,14 @@ class Drone(pg.sprite.Sprite):
         old_y = self.rect.y
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        if self.rect.left < 50:
-            self.rect.left = 50
-        if self.rect.right > WIDTH - 50:
-            self.rect.right = WIDTH - 50
+        if self.rect.left < 420:
+            self.rect.left = 420
+        if self.rect.right > 750:
+            self.rect.right = 750
         if self.rect.top < 50:
             self.rect.top = 50
-        if self.rect.bottom > HEIGHT - 50:
-            self.rect.bottom = HEIGHT - 50
+        if self.rect.bottom > 350:
+            self.rect.bottom = 350
         # update angle
         self.current_angle = calculate_angle(old_x, old_y, self.rect.x, self.rect.y)
 
@@ -137,6 +138,7 @@ class Drone(pg.sprite.Sprite):
             # round robin
             if self.current_checkpoint >= len(DRONE_ROUTES):
                 self.current_checkpoint = 0
+                self.completed += 1
             self.route = DRONE_ROUTES[self.current_checkpoint]
             # update command
             self.current_command, self.current_angle = calculate_command(self.current_angle,

@@ -1,6 +1,15 @@
 import math
 
 
+# calculate distance
+def calculate_dist(curr_x, curr_y, target_x, target_y):
+    # calculate distance
+    distance = math.sqrt((target_x - curr_x) ** 2 + (target_y - curr_y) ** 2)
+    if distance == 0:
+        return 0
+    return distance
+
+
 # calculate angle based on distance between two points
 def calculate_angle(curr_x, curr_y, target_x, target_y):
     # calculate distance

@@ -16,16 +16,19 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 150, 255)
-GREY = (161, 171, 186)
+GREY = (80, 92, 106)
 DARK_GREEN = (0, 100, 0)
 DARK_GREY = (106, 110, 114)
 DARK_RED = (100, 0, 0)
 YELLOW = (212, 202, 62)
 
 # player attributes
-DRONE_INIT_X = 390
-DRONE_INIT_Y = 170
-DRONE_SPEED = 7
+DRONE_INIT_X = 600
+DRONE_INIT_Y = 80
+DRONE_SPEED = 2
+
+CONTROLLER_X = 200
+CONTROLLER_Y = 450
 
 # player control setting
 DRONE_UP = pg.K_w
@@ -38,4 +41,4 @@ DRONE_TOGGLE = pg.K_r
 BUILDING_TOGGLE = pg.K_b
 
 # predefined route setting
-DRONE_ROUTES = [[300, 95], [300, 490], [620, 490], [620, 300], [480, 300], [480, 95]]
+DRONE_ROUTES = [[615, 50], [609, 119], [627, 159], [607, 241], [581, 300], [447, 248], [562, 50]]
