@@ -73,26 +73,26 @@ class Game:
         self.screen.blit(pg.transform.scale(screenshot, (350, 300)), (30, 50))
 
     def draw_instructions(self):
-        self.draw_text("Fly (Q), Land (E), Toggle Manual (R), Toggle Building (B)", None, 20, GREY, 420, 390)
+        self.draw_text("Fly (Q), Land (E), Toggle Manual (R), Toggle Building (B)", None, 20, GREY, 30, 580)
         self.draw_text("Coordinates: ({x}, {y})".format(x=self.drone.rect.x, y=self.drone.rect.y),
-                       None, 20, GREY, 420, 420)
-        self.draw_text("Status: " + ("Flying" if self.drone.flying else "Landed"), None, 20, GREY, 420, 450)
-        self.draw_text("Mode: {mode}".format(mode=self.drone.mode), None, 20, GREY, 420, 480)
+                       None, 20, GREY, 420, 390)
+        self.draw_text("Status: " + ("Flying" if self.drone.flying else "Landed"), None, 20, GREY, 420, 420)
+        self.draw_text("Mode: {mode}".format(mode=self.drone.mode), None, 20, GREY, 420, 450)
         self.draw_text("Current command: {command}".format(command=self.drone.current_command),
-                       None, 20, GREY, 420, 510)
+                       None, 20, GREY, 420, 480)
         self.draw_text("Speed x: {x} m/s".format(x=self.drone.speedx),
-                       None, 20, GREY, 420, 540)
+                       None, 20, GREY, 420, 510)
         self.draw_text("Speed y: {y} m/s".format(y=self.drone.speedy),
-                       None, 20, GREY, 420, 570)
+                       None, 20, GREY, 420, 540)
         self.draw_text("Next checkpoint: {checkpoint}".format(checkpoint=self.drone.current_checkpoint + 1),
-                       None, 20, GREY, 580, 420)
+                       None, 20, GREY, 580, 390)
         self.draw_text("Completed: {complete}".format(complete=self.drone.completed),
-                       None, 20, GREY, 580, 450)
+                       None, 20, GREY, 580, 420)
         self.draw_text(
             "{dist}m from next checkpoint".format(dist=round(calculate_dist(self.drone.rect.x, self.drone.rect.y,
                                                                             self.drone.route[0],
                                                                             self.drone.route[1]))),
-            None, 20, GREY, 580, 480)
+            None, 20, GREY, 580, 450)
         self.draw_text("Movement Control (WASD)".format(complete=self.drone.completed),
                        None, 20, GREY, 135, 550)
 
