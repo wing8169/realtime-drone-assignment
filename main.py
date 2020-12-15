@@ -1,6 +1,3 @@
-# credits to :
-# Transparent drone image: https://www.pngkey.com/download/u2w7u2q8y3t4a9r5_online-taxifahrer-dr-drone-animation/
-
 from controller import Controller
 from drone import *
 from obstacle import Obstacle
