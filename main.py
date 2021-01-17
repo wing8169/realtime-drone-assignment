@@ -1,6 +1,4 @@
-from controller import Controller
 from drone import *
-from obstacle import Obstacle
 from setting import *
 import pygame as pg
 import sys
@@ -129,18 +127,6 @@ class Game:
                                                    "drone_right.png").replace("\\", "/")).convert()
         self.drone_right = pg.transform.smoothscale(self.drone_right, (50, 50))
         self.drone_right.set_colorkey(BLACK)
-        self.building_img = pg.image.load(path.join(self.img_dir,
-                                                    "building.png").replace("\\", "/")).convert()
-        self.building_img = pg.transform.scale(self.building_img, (50, 50))
-        self.building_img.set_colorkey(BLACK)
-        self.controller_img = pg.image.load(path.join(self.img_dir,
-                                                      "controller_noclick.png").replace("\\", "/")).convert()
-        self.controller_img = pg.transform.scale(self.controller_img, (150, 150))
-        self.controller_img.set_colorkey(BLACK)
-        self.controller_click_img = pg.image.load(path.join(self.img_dir,
-                                                            "controller.png").replace("\\", "/")).convert()
-        self.controller_click_img = pg.transform.scale(self.controller_click_img, (150, 150))
-        self.controller_click_img.set_colorkey(BLACK)
 
     def events(self):
         for event in pg.event.get():

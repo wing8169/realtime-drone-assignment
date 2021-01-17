@@ -2,7 +2,7 @@ from setting import *
 import pygame as pg
 
 from tello import Tello
-from utils import calculate_command, calculate_angle
+from utils import calculate_command
 
 
 class Drone(pg.sprite.Sprite):
@@ -62,44 +62,9 @@ class Drone(pg.sprite.Sprite):
         if self.mode == "Automatic":
             self.update_automatic()
         else:
-            self.update_manual_new()
+            self.update_manual()
 
     def update_manual(self):
-        self.image = self.stand_img
-        self.rect = self.rect
-        self.radius = self.rect.width / 2 * .85
-        self.speedx = 0
-        self.speedy = 0
-        keys = pg.key.get_pressed()
-        if keys[self.left]:
-            self.speedx -= DRONE_SPEED * self.speedup
-            self.image = self.left_img
-        if keys[self.right]:
-            self.speedx += DRONE_SPEED * self.speedup
-            self.image = self.right_img
-        if keys[self.up]:
-            self.speedy -= DRONE_SPEED * self.speedup
-        if keys[self.down]:
-            self.speedy += DRONE_SPEED * self.speedup
-        if self.speedx != 0 and self.speedy != 0:
-            self.speedx *= 0.7071
-            self.speedy *= 0.7071
-        old_x = self.rect.x
-        old_y = self.rect.y
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
-        if self.rect.left < 50:
-            self.rect.left = 50
-        if self.rect.right > 380:
-            self.rect.right = 380
-        if self.rect.top < 50:
-            self.rect.top = 50
-        if self.rect.bottom > 350:
-            self.rect.bottom = 350
-        # update angle
-        self.current_angle = calculate_angle(old_x, old_y, self.rect.x, self.rect.y)
-
-    def update_manual_new(self):
         self.image = self.stand_img
         self.rect = self.rect
         self.radius = self.rect.width / 2 * .85

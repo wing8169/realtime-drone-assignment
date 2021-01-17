@@ -27,9 +27,6 @@ DRONE_INIT_X = 230
 DRONE_INIT_Y = 80
 DRONE_SPEED = 2
 
-CONTROLLER_X = 200
-CONTROLLER_Y = 450
-
 # player control setting
 DRONE_UP = pg.K_z
 DRONE_DOWN = pg.K_x
