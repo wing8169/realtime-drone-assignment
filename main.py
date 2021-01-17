@@ -4,6 +4,7 @@ from obstacle import Obstacle
 from setting import *
 import pygame as pg
 import sys
+import math
 
 from utils import calculate_command, calculate_dist
 
@@ -23,7 +24,6 @@ class Game:
         self.clock = pg.time.Clock()
         self.running = True
         self.load_data()
-        self.alpha = 0  # hit obstacle pop up
 
     def run(self):
         self.playing = True
@@ -35,23 +35,6 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
-        # check if the drone is near the obstacles
-        for obstacle in self.obstacles:
-            pos = pg.math.Vector2(self.drone.rect.x, self.drone.rect.y)
-            if pos.distance_to(pg.math.Vector2(obstacle.rect.x, obstacle.rect.y)) <= 60:
-                if self.drone.mode != "Manual":
-                    self.drone.mode = "Manual"
-                    # pop up
-                    self.alpha = 255
-        if self.alpha > 0:
-            # Reduce alpha each frame, but make sure it doesn't get below 0.
-            self.alpha = max(self.alpha - 4, 0)
-            self.txt_surf = self.orig_surf.copy()  # Don't modify the original text surf.
-            # Fill alpha_surf with this color to set its alpha value.
-            self.alpha_surf.fill((255, 255, 255, self.alpha))
-            # To make the text surface transparent, blit the transparent
-            # alpha_surf onto it with the BLEND_RGBA_MULT flag.
-            self.txt_surf.blit(self.alpha_surf, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
 
     def quit(self):
         pg.quit()
@@ -60,48 +43,58 @@ class Game:
     def draw_background(self):
         color = (245, 245, 245)
         pg.draw.rect(self.screen, color, pg.Rect(0, 0, 800, 600))
-        self.screen.blit(self.background_img, (420, 50))
-
-    def draw_mini_map(self):
-        rect = pg.Rect(self.drone.rect.left - 50, self.drone.rect.top - 50, 150, 150)
-        sub = self.screen.subsurface(rect)
-        screenshot = pg.Surface((150, 150))
-        screenshot.blit(sub, (0, 0))
-        self.screen.blit(pg.transform.scale(screenshot, (350, 300)), (30, 50))
+        self.screen.blit(self.background_img, (50, 50))
 
     def draw_instructions(self):
-        self.draw_text("Fly (Q), Land (E), Toggle Manual (R), Toggle Building (B)", None, 20, GREY, 30, 580)
-        self.draw_text("Coordinates: ({x}, {y})".format(x=self.drone.rect.x, y=self.drone.rect.y),
+        # command instructions
+        self.draw_text("Commands".format(complete=self.drone.completed),
+                       None, 30, GREY, 420, 70)
+        self.draw_text("Q - Take Off", None, 20, GREY, 420, 100)
+        self.draw_text("E - Land", None, 20, GREY, 420, 120)
+        self.draw_text("R - Toggle Manual / Automatic", None, 20, GREY, 420, 140)
+        self.draw_text("1/2/3/4 - Set Next Distance To 20/50/70/100", None, 20, GREY, 420, 160)
+        self.draw_text("5/6/7/8/9 - Set Next Angle To 15/30/60/90/180", None, 20, GREY, 420, 180)
+        self.draw_text("W - Move Forward", None, 20, GREY, 420, 200)
+        self.draw_text("S - Move Backward", None, 20, GREY, 420, 220)
+        self.draw_text("A - Move Left", None, 20, GREY, 420, 240)
+        self.draw_text("D - Move Right", None, 20, GREY, 420, 260)
+        self.draw_text("Z - Move Up", None, 20, GREY, 420, 280)
+        self.draw_text("X - Move Down", None, 20, GREY, 420, 300)
+        self.draw_text("C - Rotate Clockwise", None, 20, GREY, 420, 320)
+        self.draw_text("V - Rotate Anti-Clockwise", None, 20, GREY, 420, 340)
+        # drone information
+        self.draw_text("X Coordinate: {x}".format(x=self.drone.rect.x), None, 20, GREY, 50, 390)
+        self.draw_text("Y Coordinate: {y}".format(y=self.drone.rect.y), None, 20, GREY, 50, 420)
+        self.draw_text("Z Coordinate: {z}".format(z=self.drone.z), None, 20, GREY, 50, 450)
+        self.draw_text("Current Angle: {a}".format(a=round(self.drone.current_angle)), None, 20, GREY, 50, 480)
+        self.draw_text("Status: " + ("Taken Off" if self.drone.flying else "Landed"), None, 20, GREY, 50, 510)
+        self.draw_text("Mode: {mode}".format(mode=self.drone.mode), None, 20, GREY, 50, 540)
+        # other information
+        self.draw_text("Distance to move: {d}".format(d=self.drone.next_distance),
                        None, 20, GREY, 420, 390)
-        self.draw_text("Status: " + ("Flying" if self.drone.flying else "Landed"), None, 20, GREY, 420, 420)
-        self.draw_text("Mode: {mode}".format(mode=self.drone.mode), None, 20, GREY, 420, 450)
-        self.draw_text("Current command: {command}".format(command=self.drone.current_command),
-                       None, 20, GREY, 420, 480)
-        self.draw_text("Speed x: {x} m/s".format(x=self.drone.speedx),
-                       None, 20, GREY, 420, 510)
-        self.draw_text("Speed y: {y} m/s".format(y=self.drone.speedy),
-                       None, 20, GREY, 420, 540)
+        self.draw_text("Angle to move: {a}".format(a=self.drone.next_angle),
+                       None, 20, GREY, 420, 420)
+        self.draw_text("Latest command: {command}".format(command=self.drone.current_command),
+                       None, 20, GREY, 420, 450)
         self.draw_text("Next checkpoint: {checkpoint}".format(checkpoint=self.drone.current_checkpoint + 1),
-                       None, 20, GREY, 580, 390)
-        self.draw_text("Completed: {complete}".format(complete=self.drone.completed),
-                       None, 20, GREY, 580, 420)
-        self.draw_text(
-            "{dist}m from next checkpoint".format(dist=round(calculate_dist(self.drone.rect.x, self.drone.rect.y,
-                                                                            self.drone.route[0],
-                                                                            self.drone.route[1]))),
-            None, 20, GREY, 580, 450)
-        self.draw_text("Movement Control (WASD)".format(complete=self.drone.completed),
-                       None, 20, GREY, 135, 550)
+                       None, 20, GREY, 420, 480)
+        self.draw_text("Number of completed routes: {complete}".format(complete=self.drone.completed),
+                       None, 20, GREY, 420, 510)
+        if self.drone.route is None:
+            self.draw_text("-1m from next checkpoint", None, 20, GREY, 420, 540)
+        else:
+            self.draw_text(
+                "{dist}m from next checkpoint".format(dist=round(calculate_dist(self.drone.rect.x, self.drone.rect.y,
+                                                                                self.drone.route[0],
+                                                                                self.drone.route[1]))),
+                None, 20, GREY, 420, 540)
 
     def draw(self):
         self.draw_background()
         # draw drone
         self.all_sprites.draw(self.screen)
-        # draw mini map
-        self.draw_mini_map()
         # draw instruction text
         self.draw_instructions()
-        self.screen.blit(self.txt_surf, (100, 250))
         pg.display.flip()
 
     def new(self):
@@ -115,25 +108,6 @@ class Game:
                            self.drone_right, self.drone_left)
         self.all_sprites.add(self.drone)
         self.drones.add(self.drone)
-        # initialize movement controller
-        self.controller = Controller(self, CONTROLLER_X, CONTROLLER_Y, DRONE_LEFT, DRONE_RIGHT,
-                                     DRONE_UP, DRONE_DOWN, self.controller_img, self.controller_click_img,
-                                     pg.transform.rotate(self.controller_click_img, 90),
-                                     pg.transform.rotate(self.controller_click_img, 180),
-                                     pg.transform.rotate(self.controller_click_img, 270))
-        self.all_sprites.add(self.controller)
-        # initialize obstacle
-        self.obstacles = pg.sprite.Group()
-        self.obstacle = Obstacle(self, 550, 150, self.building_img)
-        self.obstacles.add(self.obstacle)
-        self.all_sprites.add(self.obstacle)
-        # initialize pop up
-        self.orig_surf = self.draw_text("Detected Obstacle, Switching to Manual Mode", None, 40, DARK_RED, 350, 250,
-                                        False)
-        self.txt_surf = self.orig_surf.copy()
-        self.alpha_surf = pg.Surface(self.txt_surf.get_size(), pg.SRCALPHA)
-        self.alpha_surf.fill((255, 255, 255, self.alpha))
-        self.txt_surf.blit(self.alpha_surf, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
         self.run()
 
     def load_data(self):
@@ -175,28 +149,102 @@ class Game:
                 sys.exit()
             # toggle manual / auto for drone
             elif event.type == pg.KEYUP:
-                if event.key == DRONE_TOGGLE and self.drone.flying:
-                    self.drone.mode = "Manual" if self.drone.mode == "Automatic" else "Automatic"
-                    if self.drone.mode == "Automatic":
-                        # if just toggled automatic mode, trigger command printing
-                        self.drone.current_command, self.drone.current_angle = calculate_command(
-                            self.drone.current_angle,
-                            self.drone.rect.x,
-                            self.drone.rect.y,
-                            self.drone.route[0],
-                            self.drone.route[1])
-                        self.drone.tello.send(self.drone.current_command)
-                    else:
-                        self.drone.current_command = "Manual Mode"
-                if event.key == BUILDING_TOGGLE:
-                    if self.obstacle.alive():
-                        self.obstacle.kill()
-                        self.obstacles.remove(self.obstacle)
-                        self.all_sprites.remove(self.obstacle)
-                    else:
-                        self.obstacle = Obstacle(self, 550, 150, self.building_img)
-                        self.all_sprites.add(self.obstacle)
-                        self.obstacles.add(self.obstacle)
+                if self.drone.flying:
+                    if event.key == DRONE_TOGGLE:
+                        self.drone.mode = "Manual" if self.drone.mode == "Automatic" else "Automatic"
+                        if self.drone.mode == "Automatic":
+                            # if just toggled automatic mode, trigger command printing
+                            self.drone.current_command, self.drone.current_angle = calculate_command(
+                                self.drone.current_angle,
+                                self.drone.rect.x,
+                                self.drone.rect.y,
+                                DRONE_ROUTES[0][0],
+                                DRONE_ROUTES[0][1])
+                            self.drone.tello.send(self.drone.current_command)
+                        else:
+                            self.drone.tello.send("stop")
+                            self.drone.current_command = "stop"
+                    if event.key == DRONE_UP:
+                        self.drone.tello.send("up " + str(self.drone.next_distance))
+                        self.drone.current_command = "up " + str(self.drone.next_distance)
+                        self.drone.z += self.drone.next_distance
+                    if event.key == DRONE_DOWN:
+                        self.drone.tello.send("down " + str(self.drone.next_distance))
+                        self.drone.current_command = "down " + str(self.drone.next_distance)
+                        self.drone.z -= self.drone.next_distance
+                        if self.drone.z < 0:
+                            self.drone.z = 0
+                    if event.key == DRONE_LEFT:
+                        self.drone.tello.send("left " + str(self.drone.next_distance))
+                        self.drone.current_command = "left " + str(self.drone.next_distance)
+                        if self.drone.next_distance != 0:
+                            target_angle = self.drone.current_angle - 90
+                            target_x = self.drone.rect.x + self.drone.next_distance * math.cos(
+                                math.radians(target_angle))
+                            target_y = self.drone.rect.y + self.drone.next_distance * math.sin(
+                                math.radians(target_angle))
+                            self.drone.target_next_route = [target_x, target_y]
+                    if event.key == DRONE_RIGHT:
+                        self.drone.tello.send("right " + str(self.drone.next_distance))
+                        self.drone.current_command = "right " + str(self.drone.next_distance)
+                        if self.drone.next_distance != 0:
+                            target_angle = self.drone.current_angle + 90
+                            target_x = self.drone.rect.x + self.drone.next_distance * math.cos(
+                                math.radians(target_angle))
+                            target_y = self.drone.rect.y + self.drone.next_distance * math.sin(
+                                math.radians(target_angle))
+                            self.drone.target_next_route = [target_x, target_y]
+                    if event.key == DRONE_FORWARD:
+                        self.drone.tello.send("forward " + str(self.drone.next_distance))
+                        self.drone.current_command = "forward " + str(self.drone.next_distance)
+                        if self.drone.next_distance != 0:
+                            target_angle = self.drone.current_angle
+                            target_x = self.drone.rect.x + self.drone.next_distance * math.cos(
+                                math.radians(target_angle))
+                            target_y = self.drone.rect.y + self.drone.next_distance * math.sin(
+                                math.radians(target_angle))
+                            self.drone.target_next_route = [target_x, target_y]
+                    if event.key == DRONE_BACKWARD:
+                        self.drone.tello.send("backward " + str(self.drone.next_distance))
+                        self.drone.current_command = "backward " + str(self.drone.next_distance)
+                        self.drone.target_next_route = [self.drone.rect.x, self.drone.rect.y + self.drone.next_distance]
+                        if self.drone.next_distance != 0:
+                            target_angle = self.drone.current_angle - 180
+                            target_x = self.drone.rect.x + self.drone.next_distance * math.cos(
+                                math.radians(target_angle))
+                            target_y = self.drone.rect.y + self.drone.next_distance * math.sin(
+                                math.radians(target_angle))
+                            self.drone.target_next_route = [target_x, target_y]
+                    if event.key == DRONE_CW:
+                        self.drone.tello.send("cw " + str(self.drone.next_angle))
+                        self.drone.current_command = "cw " + str(self.drone.next_angle)
+                        self.drone.current_angle += self.drone.next_angle
+                        if self.drone.current_angle > 180:
+                            self.drone.current_angle = -(360 - self.drone.current_angle)
+                    if event.key == DRONE_CCW:
+                        self.drone.tello.send("ccw " + str(self.drone.next_angle))
+                        self.drone.current_command = "ccw " + str(self.drone.next_angle)
+                        self.drone.current_angle -= self.drone.next_angle
+                        if self.drone.current_angle <= -180:
+                            self.drone.current_angle += 360
+                if event.key == DRONE_DISTANCE_1:
+                    self.drone.next_distance = DRONE_DISTANCES[0]
+                elif event.key == DRONE_DISTANCE_2:
+                    self.drone.next_distance = DRONE_DISTANCES[1]
+                elif event.key == DRONE_DISTANCE_3:
+                    self.drone.next_distance = DRONE_DISTANCES[2]
+                elif event.key == DRONE_DISTANCE_4:
+                    self.drone.next_distance = DRONE_DISTANCES[3]
+                elif event.key == DRONE_ANGLE_1:
+                    self.drone.next_angle = DRONE_ANGLES[0]
+                elif event.key == DRONE_ANGLE_2:
+                    self.drone.next_angle = DRONE_ANGLES[1]
+                elif event.key == DRONE_ANGLE_3:
+                    self.drone.next_angle = DRONE_ANGLES[2]
+                elif event.key == DRONE_ANGLE_4:
+                    self.drone.next_angle = DRONE_ANGLES[3]
+                elif event.key == DRONE_ANGLE_5:
+                    self.drone.next_angle = DRONE_ANGLES[4]
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
             pg.quit()
