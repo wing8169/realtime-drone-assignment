@@ -144,8 +144,8 @@ class Game:
                                 self.drone.current_angle,
                                 self.drone.rect.x,
                                 self.drone.rect.y,
-                                DRONE_ROUTES[0][0],
-                                DRONE_ROUTES[0][1])
+                                DRONE_ROUTES[self.drone.current_checkpoint][0],
+                                DRONE_ROUTES[self.drone.current_checkpoint][1])
                             self.drone.tello.send(self.drone.current_command)
                         else:
                             self.drone.tello.send("stop")
