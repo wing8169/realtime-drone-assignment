@@ -150,6 +150,7 @@ class Game:
                         else:
                             self.drone.tello.send("stop")
                             self.drone.current_command = "stop"
+                            self.drone.target_next_route = None
                     if event.key == DRONE_UP:
                         self.drone.tello.send("up " + str(self.drone.next_distance))
                         self.drone.current_command = "up " + str(self.drone.next_distance)
