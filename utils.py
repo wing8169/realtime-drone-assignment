@@ -52,11 +52,14 @@ def calculate_command(angle, curr_x, curr_y, target_x, target_y):
     if angle_diff == 0:
         return "forward " + str(math.ceil(distance)), degree
     direction = "cw"
-    if angle_diff < 0:
-        angle_diff = 360 + angle_diff
     if angle_diff > 180:
         direction = "ccw"
-        angle_diff -= 180
+        angle_diff = 360 - angle_diff
+    elif angle_diff <= -180:
+        angle_diff = 360 + angle_diff
+    elif angle_diff < 0:
+        angle_diff *= -1
+        direction = "ccw"
     # convert to negative angle
     if degree > 180:
         degree = -(360-degree)

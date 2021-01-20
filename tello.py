@@ -1,6 +1,8 @@
 # This code is adopted from https://learn.droneblocks.io/p/tello-drone-programming-with-python/
 import socket
 import threading
+import datetime
+import time
 
 
 class Tello():
@@ -24,12 +26,17 @@ class Tello():
         self.receiveThread.daemon = True
         self.receiveThread.start()
 
-    # Send the message to Tello and allow for a delay in seconds
+    # Send the message to Tello
     def send(self, message):
+        a = datetime.datetime.now()
         # Try to send the message otherwise print the exception
         try:
             self.sock.sendto(message.encode(), self.tello_address)
             print("Sending message: " + message)
+            b = datetime.datetime.now()
+            delta = b - a
+            print("Total time taken to send the command is", int(delta.total_seconds() * 1000), "milliseconds.")
+            time.sleep(1)
         except Exception as e:
             print("Error sending: " + str(e))
 
